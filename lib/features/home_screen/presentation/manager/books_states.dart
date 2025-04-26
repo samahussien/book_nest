@@ -14,24 +14,42 @@ class GetBooksErrorState extends BooksStates {
   GetBooksErrorState(this.error);
 }
 
+class SearchBooksLoadingState extends BooksStates {}
+
+class SearchBooksSuccessState extends BooksStates {
+  final List<Book> booksList;
+  SearchBooksSuccessState(this.booksList);
+}
+
+class SearchBooksErrorState extends BooksStates {
+  final String error;
+  SearchBooksErrorState(this.error);
+}
+
+
+
 class HasReachedMaxState extends BooksStates {
   final bool hasReachedMax;
   HasReachedMaxState(this.hasReachedMax);
 }
 
 class NextPageState extends BooksStates {
-  final int? nextPage;
-  NextPageState(this.nextPage);
+  
 }
 
-class SearchBookLoadingState extends BooksStates {}
 
 class SearchBookSuccessState extends BooksStates {
   final List<Book> booksList;
   SearchBookSuccessState(this.booksList);
 }
+class SetSearchBooksListState extends BooksStates {
+
+}
 
 class SearchBookErrorState extends BooksStates {
   final String error;
   SearchBookErrorState(this.error);
+}
+class ClearSearchState extends BooksStates {
+
 }
