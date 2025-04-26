@@ -6,11 +6,11 @@ class CustomSearchBar extends StatelessWidget {
   CustomSearchBar({
     super.key,
     this.focusNode,
-    this.controller,
+ required   this.controller,
     this.onchange,
     this.onSubmit,
   });
-  final TextEditingController? controller;
+  final TextEditingController controller;
   final FocusNode? focusNode;
   final Function(String)? onchange;
   final Function(String)? onSubmit;
@@ -19,7 +19,7 @@ class CustomSearchBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextField(
       onEditingComplete: () {
-        controller?.text = controller!.text.trimRight();
+        controller.text = controller.text.trimRight();
       },
       controller: controller,
       onChanged: onchange,
@@ -33,6 +33,18 @@ class CustomSearchBar extends StatelessWidget {
         contentPadding: EdgeInsets.zero,
         hintText: "Search for books",
         hintStyle: Styles.hintStyle,
+             suffixIcon: controller.text.isNotEmpty
+                  ? IconButton(
+                      icon: Icon(
+                        Icons.clear,
+                        color: AppColors.primary,
+                      ),
+                      onPressed: () {
+                        controller.clear();
+                       
+                      },
+                    )
+                  : null,
         prefixIcon: Icon(
           Icons.search,
           color: AppColors.secondary,

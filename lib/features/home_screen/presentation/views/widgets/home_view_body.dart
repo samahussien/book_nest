@@ -1,4 +1,3 @@
-
 import 'package:book_nest/features/home_screen/presentation/manager/books_cubit.dart';
 import 'package:book_nest/features/home_screen/presentation/manager/books_states.dart';
 import 'package:book_nest/features/home_screen/presentation/views/widgets/book_list_view.dart';
@@ -17,8 +16,19 @@ class HomeViewBody extends StatefulWidget {
 
 class _HomeViewBodyState extends State<HomeViewBody> {
   bool _isDebouncing = false;
+ final TextEditingController _searchController = TextEditingController();
+  String searchQuery = "";
 
-  @override
+  FocusNode searchFocusNode = FocusNode();
+
+  void _performSearch(String query) {
+    FocusScope.of(context).unfocus();
+    setState(() {
+      searchQuery = query;
+    });
+    BlocProvider.of<BooksCubit>(context).getBooksList(title: query);
+  }
+
   @override
   Widget build(BuildContext context) {
     final double height = MediaQuery.of(context).size.height;
@@ -26,21 +36,59 @@ class _HomeViewBodyState extends State<HomeViewBody> {
     return BlocBuilder<BooksCubit, BooksStates>(
       builder: (context, state) {
         return Padding(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.only(top: 20, left: 20, right: 20),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              CustomSearchBar(),
+              CustomSearchBar(
+                  controller: _searchController,
+                  focusNode: searchFocusNode,
+                  onSubmit: _performSearch,
+                  onchange: (value) {
+                    if (value.isEmpty) {
+                      setState(() {
+                        cubit.nextPage = null;
+                      });
+                    }
+                    setState(() {
+                      searchQuery = value;
+                      _searchController.text = value;
+                    });
+                  }),
               Padding(
                 padding: EdgeInsets.symmetric(vertical: height * 0.01),
-                child: Text(
-                  "Nothing on your mind? our bookshelf is full of books to read",
-                  style: Styles.headlineStyle,
-                ),
+                child: cubit.searchQuery != ""
+                    ? Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            "Search results: ",
+                            style: Styles.headlineStyle,
+                          ),
+                          const SizedBox(
+                            width: 10,
+                          ),
+                          IconButton(
+                              onPressed: () {
+                                setState(() {
+                                  _searchController.clear();
+                                  searchQuery = "";
+                                  cubit.searchQuery = "";
+                                  cubit.searchBooksList.clear();
+                                });
+                              },
+                              icon: Icon(Icons.close))
+                        ],
+                      )
+                    : Text(
+                        "Nothing on your mind? our bookshelf is full of books to read",
+                        style: Styles.headlineStyle,
+                      ),
               ),
-              state is GetBooksLoadingState && cubit.nextPage == null
-                  ? Expanded(
-                      child: CustomScrollIndicator())
+              (state is GetBooksLoadingState ||
+                          state is SearchBookLoadingState) &&
+                      (cubit.nextPage == null||cubit.nextPage==2)
+                  ? Expanded(child: CustomScrollIndicator())
                   : Expanded(
                       child: NotificationListener<ScrollNotification>(
                         onNotification:
@@ -54,13 +102,22 @@ class _HomeViewBodyState extends State<HomeViewBody> {
 
                             Future.delayed(const Duration(milliseconds: 300),
                                 () {
-                              cubit.getBooksList(page: cubit.nextPage);
+                              cubit.getBooksList(
+                                page: cubit.nextPage,
+                                title: cubit.searchQuery,
+                              );
                               _isDebouncing = false;
                             });
                           }
                           return false;
                         },
-                        child: BookListView(cubit: cubit, height: height),
+                        child: BookListView(
+                          cubit: cubit,
+                          height: height,
+                          booksList: cubit.searchBooksList.isNotEmpty
+                              ? cubit.searchBooksList
+                              : cubit.booksList,
+                        ),
                       ),
                     )
             ],
@@ -70,6 +127,3 @@ class _HomeViewBodyState extends State<HomeViewBody> {
     );
   }
 }
-
-
-

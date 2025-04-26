@@ -1,5 +1,6 @@
 import 'package:book_nest/features/home_screen/data/repositories/books_repo_impl.dart';
 import 'package:book_nest/features/home_screen/data/services/api_service.dart';
+import 'package:book_nest/features/home_screen/presentation/manager/bloc_observer.dart';
 import 'package:book_nest/features/home_screen/presentation/manager/books_cubit.dart';
 import 'package:book_nest/utils/app_routes.dart';
 import 'package:book_nest/utils/colors.dart';
@@ -8,6 +9,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 void main() {
+   Bloc.observer = MyBlocObserver();
+
   runApp(const MyApp());
 }
 

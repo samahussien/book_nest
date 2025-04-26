@@ -1,4 +1,6 @@
 
+import 'package:book_nest/features/home_screen/data/models/book/book.dart';
+
 abstract class BooksStates {}
 
 class BooksInitialState extends BooksStates {}
@@ -20,4 +22,16 @@ class HasReachedMaxState extends BooksStates {
 class NextPageState extends BooksStates {
   final int? nextPage;
   NextPageState(this.nextPage);
+}
+
+class SearchBookLoadingState extends BooksStates {}
+
+class SearchBookSuccessState extends BooksStates {
+  final List<Book> booksList;
+  SearchBookSuccessState(this.booksList);
+}
+
+class SearchBookErrorState extends BooksStates {
+  final String error;
+  SearchBookErrorState(this.error);
 }
