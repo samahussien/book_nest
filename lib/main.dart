@@ -25,6 +25,7 @@ class MyApp extends StatelessWidget {
       child: MaterialApp.router(
         title: 'book nest',
         theme: ThemeData(
+          fontFamily: "Raleway",
           useMaterial3: true,
           scaffoldBackgroundColor: AppColors.background,
           appBarTheme: const AppBarTheme(
