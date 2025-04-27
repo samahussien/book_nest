@@ -92,10 +92,10 @@ class _HomeViewBodyState extends State<HomeViewBody> {
                         style: Styles.headlineStyle,
                       ),
               ),
-              (state is GetBooksLoadingState && cubit.booknextPage == null) ||
+              ( cubit.booknextPage == null) ||
                       (state is SearchBooksLoadingState &&
                           cubit.searchNextPage == null)
-                  ? Expanded(child: CustomScrollIndicator())
+                  ? Expanded(child: Center(child: CustomScrollIndicator()))
                   : Expanded(
                       child: NotificationListener<ScrollNotification>(
                         onNotification:
