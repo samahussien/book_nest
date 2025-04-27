@@ -1,7 +1,7 @@
 # book_nest
 
 ## Overview
-this is book nest app! , mobile app to help users to find interesting books 
+this is Book Nest app! , mobile app to help users to find interesting books 
 
 ## Prerequisites
 
