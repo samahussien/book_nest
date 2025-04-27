@@ -32,7 +32,7 @@ flutter run
 
 ## Used Libraries:
 
-1. cached_network_image: ^3.4.1
+1.cached_network_image: ^3.4.1
 The cached_network_image package is used for loading and caching images from the network. It helps improve the app's performance by reducing the number of network requests required to load images, storing images in memory or on disk for future use.
 
 2.dartz: ^0.10.1
