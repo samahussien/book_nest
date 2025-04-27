@@ -26,7 +26,8 @@ class BookListView extends StatelessWidget {
               : CustomScrollIndicator();
         }
 
-        return BookListItem(book: booksList[index]);
+        return BookListItem(book: booksList[index],  key: ValueKey(booksList[index].id)
+,);
       },
       separatorBuilder: (context, index) => SizedBox(
         height: height * 0.01,

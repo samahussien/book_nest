@@ -8,9 +8,9 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-void main() {
+void main()async {
    Bloc.observer = MyBlocObserver();
-
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(const MyApp());
 }
 
@@ -21,8 +21,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
          create: (context) => BooksCubit(BooksRepoImpl(ApiService(Dio())))
-        ..getBooksList(),
+        ..getBooksList()..getFavoriteBooks(),
       child: MaterialApp.router(
+        debugShowCheckedModeBanner: false,
         title: 'book nest',
         theme: ThemeData(
           fontFamily: "Raleway",

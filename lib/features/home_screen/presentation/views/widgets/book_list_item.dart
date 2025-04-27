@@ -28,10 +28,10 @@ class _BookListItemState extends State<BookListItem> {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            BookImage(widget: widget, width: width, height: height),
+            BookImage(book:widget. book, width: width, height: height),
             SizedBox(width: width * 0.05),
             Expanded(
-              child:  BookData(widget: widget, width: width, height: height,)   ),
+              child:  BookData(book:widget. book, width: width, height: height,)   ),
           ],
         ),
       ),

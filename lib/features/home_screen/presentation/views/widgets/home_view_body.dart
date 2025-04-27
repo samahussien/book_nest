@@ -1,8 +1,11 @@
+import 'dart:developer';
+
 import 'package:book_nest/features/home_screen/presentation/manager/books_cubit.dart';
 import 'package:book_nest/features/home_screen/presentation/manager/books_states.dart';
 import 'package:book_nest/features/home_screen/presentation/views/widgets/book_list_view.dart';
 import 'package:book_nest/shared/custom_scroll_indicator.dart';
 import 'package:book_nest/shared/custom_search_bar.dart';
+import 'package:book_nest/shared/warning.dart';
 import 'package:book_nest/utils/styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -16,7 +19,7 @@ class HomeViewBody extends StatefulWidget {
 
 class _HomeViewBodyState extends State<HomeViewBody> {
   bool _isDebouncing = false;
- final TextEditingController _searchController = TextEditingController();
+  final TextEditingController _searchController = TextEditingController();
   String searchQuery = "";
 
   FocusNode searchFocusNode = FocusNode();
@@ -26,7 +29,7 @@ class _HomeViewBodyState extends State<HomeViewBody> {
     setState(() {
       searchQuery = query;
     });
-    BlocProvider.of<BooksCubit>(context).getBooksList(title: query);
+    BlocProvider.of<BooksCubit>(context).searchBooks(title: query);
   }
 
   @override
@@ -47,11 +50,12 @@ class _HomeViewBodyState extends State<HomeViewBody> {
                   onchange: (value) {
                     if (value.isEmpty) {
                       setState(() {
-                        cubit.nextPage = null;
+                        cubit.searchNextPage = null;
                       });
                     }
                     setState(() {
                       searchQuery = value;
+                      cubit.searchQuery = value;
                       _searchController.text = value;
                     });
                   }),
@@ -74,7 +78,10 @@ class _HomeViewBodyState extends State<HomeViewBody> {
                                   _searchController.clear();
                                   searchQuery = "";
                                   cubit.searchQuery = "";
+                                  cubit.searchNextPage = null;
                                   cubit.searchBooksList.clear();
+                                  cubit.clearSearch();
+                                  cubit.isOffline = false;
                                 });
                               },
                               icon: Icon(Icons.close))
@@ -85,9 +92,9 @@ class _HomeViewBodyState extends State<HomeViewBody> {
                         style: Styles.headlineStyle,
                       ),
               ),
-              (state is GetBooksLoadingState ||
-                          state is SearchBookLoadingState) &&
-                      (cubit.nextPage == null||cubit.nextPage==2)
+              (state is GetBooksLoadingState && cubit.booknextPage == null) ||
+                      (state is SearchBooksLoadingState &&
+                          cubit.searchNextPage == null)
                   ? Expanded(child: CustomScrollIndicator())
                   : Expanded(
                       child: NotificationListener<ScrollNotification>(
@@ -102,22 +109,37 @@ class _HomeViewBodyState extends State<HomeViewBody> {
 
                             Future.delayed(const Duration(milliseconds: 300),
                                 () {
-                              cubit.getBooksList(
-                                page: cubit.nextPage,
-                                title: cubit.searchQuery,
-                              );
+                              _searchController.text.isNotEmpty
+                                  ? cubit.searchBooks(
+                                      title: _searchController.text,
+                                      page: cubit.searchNextPage)
+                                  : cubit.getBooksList(
+                                      page: cubit.booknextPage,
+                                    );
                               _isDebouncing = false;
                             });
                           }
                           return false;
                         },
-                        child: BookListView(
-                          cubit: cubit,
-                          height: height,
-                          booksList: cubit.searchBooksList.isNotEmpty
-                              ? cubit.searchBooksList
-                              : cubit.booksList,
-                        ),
+                        child: cubit.searchBooksList.isEmpty && cubit.isOffline
+                            ? Warning(
+                                message:
+                                    "you are offline, connect to the internet and try again",
+                              )
+                            : cubit.searchBooksList.isEmpty &&
+                                    state is SearchBookSuccessState
+                                ? Warning(
+                                    message:
+                                        "No results found, try another search",
+                                  )
+                                : BookListView(
+                                  
+                                    cubit: cubit,
+                                    height: height,
+                                    booksList: cubit.searchBooksList.isNotEmpty
+                                        ? cubit.searchBooksList
+                                        : cubit.booksList,
+                                  ),
                       ),
                     )
             ],
