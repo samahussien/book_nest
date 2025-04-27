@@ -1,17 +1,18 @@
 
-import 'package:book_nest/features/home_screen/presentation/views/widgets/book_list_item.dart';
+import 'package:book_nest/features/home_screen/data/models/book/book.dart';
 import 'package:book_nest/utils/colors.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 class BookImage extends StatelessWidget {
   const BookImage({
     super.key,
-    required this.widget,
+    required this.book,
     required this.width,
     required this.height,
   });
 
-  final BookListItem widget;
+  final Book book;
   final double width;
   final double height;
 
@@ -19,11 +20,11 @@ class BookImage extends StatelessWidget {
   Widget build(BuildContext context) {
     return ClipRRect(
       borderRadius: BorderRadius.circular(15),
-      child: Image.network(
-       widget.book.formats!.imageJpeg?? '',
+      child: CachedNetworkImage(
+        imageUrl:  book.formats!.imageJpeg?? '',
         width: width * 0.2,
         fit: BoxFit.contain,
-        errorBuilder: (context, url, error) => SizedBox(
+        errorWidget: (context, url, error) => SizedBox(
             width: width * 0.2,
             height: height * 0.18,
             child: Center(

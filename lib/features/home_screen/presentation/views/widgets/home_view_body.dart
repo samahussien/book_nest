@@ -5,6 +5,7 @@ import 'package:book_nest/features/home_screen/presentation/manager/books_states
 import 'package:book_nest/features/home_screen/presentation/views/widgets/book_list_view.dart';
 import 'package:book_nest/shared/custom_scroll_indicator.dart';
 import 'package:book_nest/shared/custom_search_bar.dart';
+import 'package:book_nest/shared/warning.dart';
 import 'package:book_nest/utils/styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -18,14 +19,13 @@ class HomeViewBody extends StatefulWidget {
 
 class _HomeViewBodyState extends State<HomeViewBody> {
   bool _isDebouncing = false;
- final TextEditingController _searchController = TextEditingController();
+  final TextEditingController _searchController = TextEditingController();
   String searchQuery = "";
 
   FocusNode searchFocusNode = FocusNode();
 
   void _performSearch(String query) {
     FocusScope.of(context).unfocus();
-    log("cubit.searchQuery: ${  BlocProvider.of<BooksCubit>(context).searchQuery}");
     setState(() {
       searchQuery = query;
     });
@@ -81,6 +81,7 @@ class _HomeViewBodyState extends State<HomeViewBody> {
                                   cubit.searchNextPage = null;
                                   cubit.searchBooksList.clear();
                                   cubit.clearSearch();
+                                  cubit.isOffline = false;
                                 });
                               },
                               icon: Icon(Icons.close))
@@ -114,20 +115,31 @@ class _HomeViewBodyState extends State<HomeViewBody> {
                                       page: cubit.searchNextPage)
                                   : cubit.getBooksList(
                                       page: cubit.booknextPage,
-                                      // title: cubit.searchQuery,
                                     );
                               _isDebouncing = false;
                             });
                           }
                           return false;
                         },
-                        child: BookListView(
-                          cubit: cubit,
-                          height: height,
-                          booksList: cubit.searchBooksList.isNotEmpty
-                              ? cubit.searchBooksList
-                              : cubit.booksList,
-                        ),
+                        child: cubit.searchBooksList.isEmpty && cubit.isOffline
+                            ? Warning(
+                                message:
+                                    "you are offline, connect to the internet and try again",
+                              )
+                            : cubit.searchBooksList.isEmpty &&
+                                    state is SearchBookSuccessState
+                                ? Warning(
+                                    message:
+                                        "No results found, try another search",
+                                  )
+                                : BookListView(
+                                  
+                                    cubit: cubit,
+                                    height: height,
+                                    booksList: cubit.searchBooksList.isNotEmpty
+                                        ? cubit.searchBooksList
+                                        : cubit.booksList,
+                                  ),
                       ),
                     )
             ],
